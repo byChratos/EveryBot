@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { Client, Collection, Intents } = require('discord.js');
 const { token, activity, commandChannel } = require('./config.json');
+const Sequelize = require('sequelize');
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
@@ -21,6 +22,14 @@ for (const folder of commandFolders){
     }
 
 }
+
+// Database
+const sequelize = new Sequelize('database', 'user', 'password', {
+    host: 'localhost',
+    dialect: 'sqlite',
+    logging: false,
+    storage: 'database.db',
+})
 
 client.once('ready', () => {
 	console.log('Ready!');
