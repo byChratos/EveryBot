@@ -19,12 +19,12 @@ module.exports = {
 				.setDescription('The amount of messages to delete')),
 	async execute(interaction) {
 		if(interaction.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)){
-			const amount = interaction.options.getInteger('amount') + 1;
+			const amount = interaction.options.getInteger('amount');
 			if(amount <= 0){
 				return interaction.reply({ content: 'The amount has to be greater than 0', ephemeral: true });
 			}else{
 				interaction.channel.bulkDelete(amount, true);
-				return interaction.reply({ content: `I have sucessfully deleted ${amount - 1} messages from this channel`, ephemeral: true });
+				return interaction.reply({ content: `I have sucessfully deleted ${amount} messages from this channel`, ephemeral: true });
 			}
 		}else{
 			return interaction.reply({ content: 'You do not have enough permissions to do that', ephemeral: true });

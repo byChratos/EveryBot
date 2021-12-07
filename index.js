@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { Client, Collection, Intents } = require('discord.js');
 const { token, activity, commandChannel } = require('./config.json');
-const Sequelize = require('sequelize');
+//const Sequelize = require('sequelize');
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
@@ -22,7 +22,7 @@ for (const folder of commandFolders){
     }
 
 }
-
+/*
 // Database
 const sequelize = new Sequelize('database', 'user', 'password', {
     host: 'localhost',
@@ -30,6 +30,7 @@ const sequelize = new Sequelize('database', 'user', 'password', {
     logging: false,
     storage: 'database.db',
 })
+*/
 
 client.once('ready', () => {
 	console.log('Ready!');
@@ -45,16 +46,18 @@ client.on('interactionCreate', async interaction => {
 	//Returns if interaction is triggered by bot, not sure if possible lol
 	if(interaction.user.bot) return;
 
+    const command = client.commands.get(interaction.commandName);
+
 	// Message if the command is in a wrong channel
-    if (commandChannel !== "none" && interaction.channel.type !== 'dm'){
-        if (commandChannel !== interaction.channel.id.toString()){
-            client.channels.fetch(commandChannel)
-            .then(channel => interaction.reply({ content: `Please use this channel to use commands: ${channel.toString()}`, ephemeral: true }));
-            return;
+    if (command.name !== "clear"){
+        if (commandChannel !== "none" && interaction.channel.type !== 'dm'){
+            if (commandChannel !== interaction.channel.id.toString()){
+                client.channels.fetch(commandChannel)
+                .then(channel => interaction.reply({ content: `Please use this channel to use commands: ${channel.toString()}`, ephemeral: true }));
+                return;
+            }
         }
     }
-
-	const command = client.commands.get(interaction.commandName);
 
 	//Returns if command does not exist
 	if(!command) return;
