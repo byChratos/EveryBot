@@ -11,7 +11,8 @@ const sequelize = new Sequelize('database', 'user', 'password', {
 });
 
 this.name = 'roles';
-this.description = 'Used to create reaction roles.'
+this.description = 'Used to create reaction roles.';
+this.cmdChannel = false;
 
 module.exports = {
 	name: this.name,
@@ -26,24 +27,6 @@ module.exports = {
             subcommand
                 .setName('create')
                 .setDescription('Creates a new reaction role message.'))
-        .addSubcommand(subcommand => 
-            subcommand
-                .setName('edit')
-                .setDescription('Edit an existing reaction role message.')
-                .addIntegerOption(option =>
-                    option.setName('id')
-                        .setDescription('The id of the message you want to edit')
-                        .setRequired(true))
-                .addStringOption(option =>
-                    option.setName('field')
-                        .setDescription('The field you want to edit.')
-                        .setRequired(true)
-                        .addChoice('Title', 'title')
-                        .addChoice('Description', 'description'))
-                .addStringOption(option =>
-                    option.setName('text')
-                        .setDescription('The text you want to have in the chosen field.')
-                        .setRequired(true)))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('addrole')
@@ -104,8 +87,8 @@ module.exports = {
                 //Create the reaction role message itself in Discord
                 const reactionRoleEmbed = new MessageEmbed()
                     .setColor('#0099ff')
-                    .setTitle('Title not set')
-                    .setDescription('Description not set')
+                    .setTitle('React to get your roles')
+                    .setDescription('description not set')
                     .setTimestamp()
                     .setFooter(`Reaction Role ID: ${newId}`)
 
@@ -120,11 +103,53 @@ module.exports = {
                     logging: false
                 });
 
+                return interaction.reply( { content: 'Message created', ephemeral: true } );
+
             //Add a role
             }else if(sub == 'addrole'){
                 const id = interaction.options.getInteger('id');
                 const role = interaction.options.getRole('role');
                 const emoji = interaction.options.getString('emoji');
+                const emoji_id = emoji.slice(emoji.length-19, -1);
+
+                await sequelize.query(`SELECT message_id AS message_id FROM roles_Messages WHERE id = ?`, {
+                    type: QueryTypes.SELECT,
+                    logging: false,
+                    replacements: [id]
+                }).then(result =>{
+                    if(result.length == 0) return;
+
+                    interaction.channel.messages.fetch(result[0].message_id)
+                        .then(messages => {
+                            messages.at(0).react(interaction.guild.emojis.cache.get(emoji_id));
+
+                            let desc = messages.at(0).embeds[0].description;
+                            if(desc == "description not set"){
+                                desc = `${emoji} - ${role.name}`;
+                            }else{
+                                desc = desc + `\n${emoji} - ${role.name}`;
+                            }
+
+                            const reactionRoleEmbed = new MessageEmbed()
+                                .setColor('#0099ff')
+                                .setTitle('React to get your roles')
+                                .setDescription(desc)
+                                .setTimestamp()
+                                .setFooter(`Reaction Role ID: ${id}`)
+                            messages.at(0).edit({ embeds: [reactionRoleEmbed] });
+                        })
+                        .then(() => {
+                            sequelize.query(`INSERT INTO roles_EmojiForRole(id, emoji_id, role_id) VALUES(?, ?, ?)`,
+                            {
+                                replacements: [id, emoji_id, role.id],
+                                type: QueryTypes.INSERT,
+                                logging: false
+                            })
+                        })
+                        .then(() => {
+                            return interaction.reply({ content: 'Role added', ephemeral: true });
+                        } );
+                });
 
 
             //Remove a role
@@ -132,40 +157,85 @@ module.exports = {
                 const id = interaction.options.getInteger('id');
                 const role = interaction.options.getRole('role');
 
-            //Edit reaction role messages
-            }else if(sub == 'edit'){
-                //Edit reaction role with ID
-                const id = interaction.options.getInteger('id');
-                const field = interaction.options.getString('field');
-                const text = interaction.options.getString('text');
+                await sequelize.query(`SELECT emoji_id AS emoji_id FROM roles_EmojiForRole WHERE id = ? AND role_id = ?`, {
+                    type: QueryTypes.SELECT,
+                    logging: false,
+                    replacements: [id, role.id]
+                }).then(emoji_id => {
+                    if(emoji_id == 0) return;
+
+                    const emojiId = emoji_id[0].emoji_id;
+                    sequelize.query(`SELECT message_id AS message_id FROM roles_Messages WHERE id = ?`, {
+                        type: QueryTypes.SELECT,
+                        logging: false,
+                        replacements: [id]
+                    }).then(result =>{
+                        if(result.length == 0) return;
+
+                        interaction.channel.messages.fetch(result[0].message_id)
+                            .then(messages => {
+                                messages.at(0).reactions.cache.get(emojiId).remove()
+                                    .catch(error => console.error('Failed to remove reactions:', error));
+
+                                let emoji = interaction.guild.emojis.cache.get(emojiId);
+
+                                let desc = messages.at(0).embeds[0].description;
+                                desc = desc.replace(`${emoji} - ${role.name}`, '');
+
+                                if(desc == '') desc = 'description not set';
+                                if(desc.startsWith('\n')) desc = desc.slice(1);
+                                if(desc.endsWith('\n')) desc = desc.slice(0, -2);
+
+                                const reactionRoleEmbed = new MessageEmbed()
+                                    .setColor('#0099ff')
+                                    .setTitle('React to get your roles')
+                                    .setDescription(desc)
+                                    .setTimestamp()
+                                    .setFooter(`Reaction Role ID: ${id}`)
+                                messages.at(0).edit({ embeds: [reactionRoleEmbed] });
+                            })
+                    }).then(() => {
+                        sequelize.query(`DELETE FROM roles_EmojiForRole WHERE id = ? AND role_id = ?`, {
+                            type: QueryTypes.DELETE,
+                            logging: false,
+                            replacements: [id, role.id]
+                        })
+                    }).then(() => { 
+                        return interaction.reply( { content: 'Role removed', ephemeral: true } );
+                    });
+                });
 
             //Delete reaction role messages
             }else if(sub == 'delete'){
                 //Delete reaction role with ID
                 const id = interaction.options.getInteger('id');
 
-                const [results, metadata] = await sequelize.query(`SELECT message_id AS message_id FROM roles_Messages WHERE id = ?`, {
+                await sequelize.query(`SELECT message_id AS message_id FROM roles_Messages WHERE id = ?`, {
                     type: QueryTypes.SELECT,
                     logging: false,
                     replacements: [id]
+                }).then(result =>{
+                    if(result.length == 0) return;
+
+                    interaction.channel.messages.fetch(result[0].message_id)
+                        .then(messages => messages.at(0).delete())
+                        .then(() => {sequelize.query(`DELETE FROM roles_Messages WHERE id = ?`, {
+                            type: QueryTypes.DELETE,
+                            logging: false,
+                            replacements: [id]
+                        })} )
+                        .then(() => {
+                            sequelize.query(`DELETE FROM roles_EmojiForRole WHERE id = ?`, {
+                                type: QueryTypes.DELETE,
+                                logging: false,
+                                replacements: [id]
+                            })
+                        })
+                        .then(() => {
+                            return interaction.reply( { content: 'Message deleted', ephemeral: true } );
+                    });
                 });
-                let msg = interaction.channel.fetch_message(results.message_id);
-                console.log(typeof msg);
             }
-
-            //Create reaction role message
-            /*
-            Needed:
-                Link to database
-
-                Message content
-                Message picture,.
-                Message title
-                Roles with icon
-
-                Actual role handler
-            */
         }
-        return 0;
     }
 }

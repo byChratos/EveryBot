@@ -3,6 +3,7 @@ const { Permissions } = require('discord.js');
 
 this.name = 'clear';
 this.description = 'Deletes a number of messages from a channel'
+this.cmdChannel = false;
 
 module.exports = {
 	name: this.name,

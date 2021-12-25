@@ -1,7 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 this.name = 'watch'
-this.description = 'Creates a YoutubeTogether room'
+this.description = 'Creates a YoutubeTogether room';
+this.cmdChannel = true;
 
 module.exports = {
     name: this.name,

@@ -1,7 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 this.name = 'beep';
-this.description = 'Beep!'
+this.description = 'Beep!';
+this.cmdChannel = false;
 
 module.exports = {
 	name: this.name,

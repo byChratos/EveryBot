@@ -3,7 +3,8 @@ const { MessageEmbed } = require('discord.js');
 const fs = require('fs');
 
 this.name = 'help';
-this.description = 'Get help for commands'
+this.description = 'Get help for commands';
+this.cmdChannel = true;
 
 module.exports = {
     name: this.name,

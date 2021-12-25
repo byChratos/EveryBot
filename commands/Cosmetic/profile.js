@@ -1,7 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 this.name = 'profile';
-this.description = 'WIP'
+this.description = 'WIP';
+this.cmdChannel = true;
 
 module.exports = {
 	name: this.name,

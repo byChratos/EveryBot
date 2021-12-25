@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 
 this.name = 'play';
 this.description = 'Let\'s you play games with friends';
+this.cmdChannel = true;
 
 module.exports = {
     name: this.name,
