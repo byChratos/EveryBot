@@ -41,7 +41,28 @@ module.exports = {
     async execute(interaction){
         if(interaction.member.permissions.has(Permissions.FLAGS.MANAGE_ROLES)){
             
-            return interaction.reply("Still wip");
+            const role = interaction.options.getRole('role');
+            let userStr;
+            var users = [];
+            users.push(interaction.options.getUser('user1'));
+            users.push(interaction.options.getUser('user2'));
+            users.push(interaction.options.getUser('user3'));
+            users.push(interaction.options.getUser('user4'));
+            users.push(interaction.options.getUser('user5'));
+
+            userStr = users[0].username;
+
+            users.forEach(function(item, index, array){
+
+                if(item == null) return;
+                if(index != 0) userStr += ', ' + item.username;
+
+                interaction.guild.members.fetch(item.id)
+                    .then(member => {
+                        member.roles.add(role).catch(console.error);
+                    })
+            });
+            return interaction.reply({ content: `Given ${role.name} to the ${userStr}`, ephemeral: true });
         }else{
 			return interaction.reply({ content: 'You do not have enough permissions to do that', ephemeral: true });
 		}
