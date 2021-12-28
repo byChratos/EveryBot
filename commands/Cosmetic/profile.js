@@ -1,4 +1,13 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { Sequelize, QueryTypes } = require('sequelize');
+const Canvas = require('canvas');
+
+// Database
+const sequelize = new Sequelize('database', 'user', 'password', {
+    host: 'localhost',
+    dialect:  'sqlite',
+    storage: 'database.db',
+});
 
 this.name = 'profile';
 this.description = 'WIP';
@@ -20,6 +29,23 @@ module.exports = {
 		),
 	async execute(interaction) {
 		//Description(custom Textbox), Links, if its your own profile settings wheel as button to change stuff
+		//Maybe an image as the profile with the links as buttons?
+
+		const user = interaction.options.getUser('user');
+		var user_id = (user == null) ? (interaction.user.id) : (user.id);
+
+		const canvas = Canvas.createCanvas(1200, 600);
+		const context = canvas.getContext('2d');
+
+		//Background
+		context.beginPath();
+		context.fillStyle = '#37393f';
+		context.rect(0, 0, 1200, 600);
+		context.fill();
+
+		
+
+
 
 
 		return interaction.reply({ content: 'Boop!', ephemeral: true });

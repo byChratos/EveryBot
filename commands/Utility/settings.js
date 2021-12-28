@@ -1,5 +1,13 @@
 const { SlashCommandBuilder, Embed } = require('@discordjs/builders');
 const { Permissions, MessageEmbed } = require('discord.js');
+const { Sequelize, QueryTypes } = require('sequelize');
+
+// Database
+const sequelize = new Sequelize('database', 'user', 'password', {
+    host: 'localhost',
+    dialect:  'sqlite',
+    storage: 'database.db',
+});
 
 this.name = 'settings';
 this.description = 'Allows you to see the current EveryBot settings and change them up, if you want of course.';
@@ -18,6 +26,8 @@ module.exports = {
 		//Set command Channel etc.
         if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply({ content:  'Sorry, but you need to be an administrator to do that.', ephemeral: true });
 
+
+
         const settingsEmbed = new MessageEmbed()
             .setColor('#51de28')
             .setTitle('EveryBot Settings')
@@ -30,7 +40,5 @@ module.exports = {
             .setTimestamp();
 
         return interaction.reply({ embeds: [settingsEmbed] });
-
-		return interaction.reply({ content: 'WIP', ephemeral: true });
 	},
 };

@@ -3,7 +3,6 @@ const { Permissions, MessageEmbed, Message, DiscordAPIError } = require('discord
 const { Sequelize, QueryTypes } = require('sequelize');
 
 // Database
-
 const sequelize = new Sequelize('database', 'user', 'password', {
     host: 'localhost',
     dialect:  'sqlite',
