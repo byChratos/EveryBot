@@ -1,2 +1,2 @@
 # EveryBot
-JS Continuation of Charles since Discord makes us use slash commands.
+JS version of my Discord Bot I made with discord.py because of it being discontinued.
