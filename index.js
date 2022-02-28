@@ -74,7 +74,7 @@ client.on('guildMemberAdd', (member) => {
             //Rectangle behind text
             context.beginPath();
             context.fillStyle = '#37393f';
-            context.rect((canvas.width / 2) - 50, canvas.height / 4, 562, canvas.height / 2.5);
+            context.rect((canvas.width / 2) - 256, canvas.height / 4, 768, canvas.height / 2.5);
             context.fill();
 
             //"Welcome" text
@@ -86,6 +86,12 @@ client.on('guildMemberAdd', (member) => {
             context.font = applyText(canvas, `${name}!`);
             context.fillStyle = '#e4f257';
             context.fillText(`${name}!`, canvas.width / 2, canvas.height / 1.8);
+
+            //Circle behind avatar
+            context.beginPath();
+            context.arc(256, 256, 187.5, 0, Math.PI * 2, true);
+            context.fillStyle = '#37393f';
+            context.fill();
 
             //Circle for avatar
             context.beginPath();
