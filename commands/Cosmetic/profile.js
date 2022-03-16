@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { Sequelize, QueryTypes } = require('sequelize');
 const Canvas = require('canvas');
+const { MessageAttachment, MessageActionRow, MessageButton, ApplicationCommandManager } = require('discord.js');
 
 // Database
 const sequelize = new Sequelize('database', 'user', 'password', {
@@ -46,8 +47,25 @@ module.exports = {
 		
 
 
+		const attachment = new MessageAttachment(canvas.toBuffer(), 'profile-image.png');
+		const row = new MessageActionRow()
+			.addComponents(
+				new MessageButton()
+					.setCustomId('test')
+					.setLabel('Test')
+					.setStyle('PRIMARY'),
+				new MessageButton()
+					.setCustomId('testt')
+					.setLabel('Testt')
+					.setStyle('PRIMARY')
+			);
 
-
-		return interaction.reply({ content: 'Boop!', ephemeral: true });
+		return interaction.reply({ files: [attachment], components: [row] });
+	},
+	async executeButtons(interaction) {
+		const buttonId = interaction.customId;
+		if(buttonId == 'test'){
+			console.log('Test button pressed');
+		}
 	},
 };
