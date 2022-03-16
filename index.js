@@ -73,8 +73,13 @@ client.on('guildMemberAdd', (member) => {
 
             //Rectangle behind text
             context.beginPath();
+
+            //Redesign completely maybe or atleast choose
             context.fillStyle = '#37393f';
-            context.rect((canvas.width / 2) - 256, canvas.height / 4, 768, canvas.height / 2.5);
+            //context.rect((canvas.width / 2) - 256, canvas.height / 4, 768, canvas.height / 2.5);
+            
+            
+            context.rect(0, canvas.height / 4, 1024, canvas.height / 2.5);
             context.fill();
 
             //"Welcome" text
@@ -201,6 +206,21 @@ client.on('messageReactionRemove', async (reaction, user) => {
         })
     });
 
+});
+
+//Button handler // Calls the executeButtons function of the command
+client.on('interactionCreate', async interaction => {
+    if(!interaction.isButton()) return;
+
+    const command = client.commands.get(interaction.message.interaction.commandName);
+    try{
+		//Execute the commands button code to have it in one place together with the rest of the command and not in this index file
+		await command.executeButtons(interaction);
+	}catch(error){
+		//Error is self explanatory
+		console.error(error);
+		await interaction.reply({ content: 'There was an error while processing the button interaction!', ephemeral: true });
+	}
 });
 
 //Interactions
