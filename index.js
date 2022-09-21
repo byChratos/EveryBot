@@ -1,13 +1,13 @@
 const fs = require('fs');
-const { Client, Collection, Intents, MessageAttachment } = require('discord.js');
-const { token, activity, commandChannel } = require('./config.json');
+const { Client, Collection, GatewayIntentBits, Partials, AttachmentBuilder } = require('discord.js');
+const { token, activity, commandChannel, database } = require('./config.json');
 const { Sequelize, QueryTypes } = require('sequelize');
 const Canvas = require('canvas');
 
 
 const client = new Client({
-    intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_MEMBERS],
-	partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMembers],
+	partials: [Partials.Message, Partials.Channel, Partials.Reaction],
 });
 
 client.commands = new Collection();
@@ -28,12 +28,7 @@ for (const folder of commandFolders){
 
 }
 
-//Database connection
-const sequelize = new Sequelize('database', 'user', 'password', {
-    host: 'localhost',
-    dialect:  'sqlite',
-    storage: 'database.db',
-});
+const sequelize = new Sequelize(database);
 
 //Startup
 client.once('ready', () => {
@@ -71,15 +66,17 @@ client.on('guildMemberAdd', (member) => {
         .then(background => {
             context.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-            //Rectangle behind text
+            //Right rect
             context.beginPath();
-
-            //Redesign completely maybe or atleast choose
             context.fillStyle = '#37393f';
-            //context.rect((canvas.width / 2) - 256, canvas.height / 4, 768, canvas.height / 2.5);
-            
-            
-            context.rect(0, canvas.height / 4, 1024, canvas.height / 2.5);
+            context.rect(256, canvas.height / 4, 1024, canvas.height / 2.5);
+            context.fill();
+
+
+            //Left rect
+            context.beginPath();
+            context.fillStyle = '#32353b';
+            context.rect(0, canvas.height / 4, 256, canvas.height / 2.5);
             context.fill();
 
             //"Welcome" text
@@ -92,10 +89,16 @@ client.on('guildMemberAdd', (member) => {
             context.fillStyle = '#e4f257';
             context.fillText(`${name}!`, canvas.width / 2, canvas.height / 1.8);
 
-            //Circle behind avatar
+            //Circle behind avatar / Right side
             context.beginPath();
-            context.arc(256, 256, 187.5, 0, Math.PI * 2, true);
+            context.arc(256, 256, 187.5, Math.PI / 2, (Math.PI/2) * 3, true);
             context.fillStyle = '#37393f';
+            context.fill();
+
+            //Circle behind avatar / Left side
+            context.beginPath();
+            context.arc(256, 256, 187.5, (Math.PI/2) * 3, Math.PI/2, true);
+            context.fillStyle = '#32353b';
             context.fill();
 
             //Circle for avatar
@@ -109,7 +112,7 @@ client.on('guildMemberAdd', (member) => {
                 .then(avatar => {
                     context.drawImage(avatar, 81, 81, 350, 350);
 
-                    const attachment = new MessageAttachment(canvas.toBuffer(), 'profile-image.png');
+                    const attachment = new AttachmentBuilder(canvas.toBuffer(), { name: 'profile-image.png' });
 
                     return guild.systemChannel.send({ files: [attachment] });
                 })
@@ -134,7 +137,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
     if(user.bot) return;
 
-    await sequelize.query(`SELECT id AS id FROM roles_Messages WHERE message_id = ?`, {
+    await sequelize.query(`SELECT id AS id FROM EB_roles_Messages WHERE message_id = ?`, {
         type: QueryTypes.SELECT,
         logging: false,
         replacements: [reaction.message.id]
@@ -142,10 +145,10 @@ client.on('messageReactionAdd', async (reaction, user) => {
         if(result.length == 0) return;
 
         const id = result[0].id;
-        sequelize.query(`SELECT role_id AS role_id FROM roles_EmojiForRole WHERE id = ? AND emoji_id = ?`, {
+        sequelize.query(`SELECT role_id AS role_id FROM EB_roles_EmojiForRole WHERE id = ? AND emoji_id = ?`, {
             type: QueryTypes.SELECT,
             logging: false,
-            replacements: [id, reaction.emoji.toString()]
+            replacements: [id, reaction.emoji.toString().slice(reaction.emoji.toString().length-20, -1)]
         }).then(second_result => {
             if(second_result.length == 0) return reaction.remove();
             
@@ -180,7 +183,7 @@ client.on('messageReactionRemove', async (reaction, user) => {
 
     if(user.bot) return;
 
-    await sequelize.query(`SELECT id AS id FROM roles_Messages WHERE message_id = ?`, {
+    await sequelize.query(`SELECT id AS id FROM EB_roles_Messages WHERE message_id = ?`, {
         type: QueryTypes.SELECT,
         logging: false,
         replacements: [reaction.message.id]
@@ -188,10 +191,10 @@ client.on('messageReactionRemove', async (reaction, user) => {
         if(result.length == 0) return;
 
         const id = result[0].id;
-        sequelize.query(`SELECT role_id AS role_id FROM roles_EmojiForRole WHERE id = ? AND emoji_id = ?`, {
+        sequelize.query(`SELECT role_id AS role_id FROM EB_roles_EmojiForRole WHERE id = ? AND emoji_id = ?`, {
             type: QueryTypes.SELECT,
             logging: false,
-            replacements: [id, reaction.emoji.toString()]
+            replacements: [id, reaction.emoji.toString().slice(reaction.emoji.toString().length-20, -1)]
         }).then(second_result => {
             if(second_result.length == 0) return;
             
@@ -206,6 +209,23 @@ client.on('messageReactionRemove', async (reaction, user) => {
         })
     });
 
+});
+
+//Autocomplete handler
+client.on('interactionCreate', async interaction => {
+    if(!interaction.isAutocomplete()) return;
+
+    const command = client.commands.get(interaction.commandName);
+    if(!command) return;
+
+    const focusedValue = interaction.options.getFocused();
+    let choices = command.autocomplete;
+    if(!choices) return;
+
+    const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+    await interaction.respond(
+        filtered.map(choice => ({ name: choice, value: choice})),
+    );
 });
 
 //Button handler // Calls the executeButtons function of the command
