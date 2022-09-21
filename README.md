@@ -1,2 +1,2 @@
 # EveryBot
-JS version of my Discord Bot I made with discord.py because of it being discontinued.
+JS Discord Bot. Currently in DiscordJS v14
