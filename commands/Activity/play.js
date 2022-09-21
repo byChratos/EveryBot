@@ -3,7 +3,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 this.name = 'play';
 this.description = 'Let\'s you play games with friends';
 this.cmdChannel = true;
-this.autocomplete = ['Betrayal', 'Chess', 'Fishing', 'Poker'];
+this.autocomplete = [['Betrayal', 'Chess', 'Fishing', 'Poker']];
 
 module.exports = {
     name: this.name,
@@ -11,6 +11,7 @@ module.exports = {
     type: 'Activity',
     cooldown: 10,
     guildOnly: true,
+    autocomplete: this.autocomplete,
     data: new SlashCommandBuilder()
         .setName(this.name)
         .setDescription(this.description)
@@ -50,5 +51,8 @@ module.exports = {
         .then(invite => interaction.reply(`https://discord.com/invite/${invite.code}`))
         .catch(console.error);
 
+    },
+    async auto(name){
+        if(name === 'game') return 0;
     }
 }
