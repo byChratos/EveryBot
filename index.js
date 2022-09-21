@@ -224,7 +224,7 @@ client.on('interactionCreate', async interaction => {
             let choices = command.autocomplete[wantedOption];
             if(!choices) return;
 
-            const filtered = choices.filter(choice => choice.startsWith(focusedOption.value));
+            const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedOption.value.toLowerCase()));
             interaction.respond(
                 filtered.map(choice => ({ name: choice, value: choice})),
             );
