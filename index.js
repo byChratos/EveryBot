@@ -218,14 +218,17 @@ client.on('interactionCreate', async interaction => {
     const command = client.commands.get(interaction.commandName);
     if(!command) return;
 
-    const focusedValue = interaction.options.getFocused();
-    let choices = command.autocomplete;
-    if(!choices) return;
+    const focusedOption = interaction.options.getFocused(true);
+    command.auto(focusedOption.name)
+        .then(wantedOption => {
+            let choices = command.autocomplete[wantedOption];
+            if(!choices) return;
 
-    const filtered = choices.filter(choice => choice.startsWith(focusedValue));
-    await interaction.respond(
-        filtered.map(choice => ({ name: choice, value: choice})),
-    );
+            const filtered = choices.filter(choice => choice.startsWith(focusedOption.value));
+            interaction.respond(
+                filtered.map(choice => ({ name: choice, value: choice})),
+            );
+        })
 });
 
 //Button handler // Calls the executeButtons function of the command
