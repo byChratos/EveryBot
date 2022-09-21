@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { Permissions } = require('discord.js');
+const { PermissionsBitField } = require('discord.js');
 
 this.name = 'giverole';
 this.description = 'Gives a role to multiple people.';
@@ -39,7 +39,7 @@ module.exports = {
                 .setDescription('The fifth user you want to give the role to')
                 .setRequired(false)),
     async execute(interaction){
-        if(interaction.member.permissions.has(Permissions.FLAGS.MANAGE_ROLES)){
+        if(interaction.member.permissions.has(PermissionsBitField.Flags.ManageRoles)){
             
             const role = interaction.options.getRole('role');
             let userStr;

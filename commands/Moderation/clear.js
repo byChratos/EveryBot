@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { Permissions } = require('discord.js');
+const { PermissionsBitField } = require('discord.js');
 
 this.name = 'clear';
 this.description = 'Deletes a number of messages from a channel'
@@ -19,7 +19,7 @@ module.exports = {
 				.setRequired(true)
 				.setDescription('The amount of messages to delete')),
 	async execute(interaction) {
-		if(interaction.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)){
+		if(interaction.member.permissions.has(PermissionsBitField.Flags.ManageMessages)){
 			const amount = interaction.options.getInteger('amount');
 			if(amount <= 0){
 				return interaction.reply({ content: 'The amount has to be greater than 0', ephemeral: true });

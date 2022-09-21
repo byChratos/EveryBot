@@ -1,10 +1,11 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const fs = require('fs');
 
 this.name = 'help';
 this.description = 'Get help for commands';
 this.cmdChannel = true;
+this.autocomplete = ['A', 'B', 'C']
 
 module.exports = {
     name: this.name,
@@ -44,17 +45,17 @@ module.exports = {
                 }
             }
 
-            const helpEmbed = new MessageEmbed()
+            const helpEmbed = new EmbedBuilder()
                 .setColor('#51de28')
                 .setTitle('These are my commands')
-                .setAuthor('EveryBot Help', 'https://i.imgur.com/LAB3Ef9.png', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+                .setAuthor({ name: 'EveryBot Help', iconURL: 'https://i.imgur.com/LAB3Ef9.png', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' })
                 .addFields(
                     { name: 'Activity', value: actData.join('\n'), inline: true },
                     { name: 'Cosmetic', value: cosData.join('\n'), inline: true },
                     { name: 'Moderation', value: modData.join('\n'), inline: true },
                     { name: 'Utility', value: utiData.join('\n'), inline: true },
                 )
-                .setFooter('Use /help <command name> to get detailed information about a specific command')
+                .setFooter({ text: 'Use /help <command name> to get detailed information about a specific command' })
                 .setTimestamp()
 
             return interaction.reply({ embeds: [helpEmbed] });
@@ -65,9 +66,9 @@ module.exports = {
             }
 
             const command = interaction.client.commands.get(arg);
-            const helpEmbed = new MessageEmbed()
+            const helpEmbed = new EmbedBuilder()
                 .setColor('#51de28')
-                .setAuthor('Every Bot Help', 'https://i.imgur.com/LAB3Ef9.png', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+                .setAuthor({ name: 'EveryBot Help', iconURL: 'https://i.imgur.com/LAB3Ef9.png', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' })
                 .setTitle(`${command.name[0].toUpperCase() + command.name.substring(1)} help`)
                 .addFields(
                     { name: 'Description', value: command.description},

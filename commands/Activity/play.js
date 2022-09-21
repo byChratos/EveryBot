@@ -13,14 +13,16 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName(this.name)
         .setDescription(this.description)
-        .addStringOption(option =>
+        /*.addStringOption(option =>
             option.setName('game')
-                .setRequired(true)
                 .setDescription('The game you want to play')
-                .addChoice('Betrayal', 'betrayal')
-                .addChoice('Chess', 'chess')
-                .addChoice('Fishing', 'fishing')
-                .addChoice('Poker', 'poker')),
+                .setRequired(true)
+                .addChoices(
+                    { name: 'Betrayal', value: 'betrayal' },
+                    { name: 'Chess', value: 'chess' },
+                    { name: 'Fishing', value: 'fishing' },
+                    { name: 'Poker', value: 'poker' },
+                ))*/,
     async execute(interaction){
         const game = interaction.options.getString('game');
 

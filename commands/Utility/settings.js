@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, Embed } = require('@discordjs/builders');
-const { Permissions, MessageEmbed } = require('discord.js');
+const { PermissionsBitField, EmbedBuilder } = require('discord.js');
 const { Sequelize, QueryTypes } = require('sequelize');
 
 // Database
@@ -24,19 +24,19 @@ module.exports = {
 		.setDescription(this.description),
 	async execute(interaction) {
 		//Set command Channel etc.
-        if(!interaction.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) return interaction.reply({ content:  'Sorry, but you need to be an administrator to do that.', ephemeral: true });
+        if(!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return interaction.reply({ content:  'Sorry, but you need to be an administrator to do that.', ephemeral: true });
 
 
 
-        const settingsEmbed = new MessageEmbed()
+        const settingsEmbed = new EmbedBuilder()
             .setColor('#51de28')
             .setTitle('EveryBot Settings')
-            .setAuthor('EveryBot Settings', 'https://i.imgur.com/LAB3Ef9.png', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+            .setAuthor({ name: 'EveryBot Settings', iconURL: 'https://i.imgur.com/LAB3Ef9.png', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' })
             .addFields(
                 { name: 'Command Channel:', value: 'n' },
                 { name: 'Yes', value: 'n' },
             )
-            .setFooter('Click on the buttons to change a certain setting or see how it is possible to change it.')
+            .setFooter({name: 'Click on the buttons to change a certain setting or see how it is possible to change it.'})
             .setTimestamp();
 
         return interaction.reply({ embeds: [settingsEmbed] });
