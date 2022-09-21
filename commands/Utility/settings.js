@@ -1,13 +1,10 @@
 const { SlashCommandBuilder, Embed } = require('@discordjs/builders');
 const { PermissionsBitField, EmbedBuilder } = require('discord.js');
 const { Sequelize, QueryTypes } = require('sequelize');
+const { database } = require('../../config.json');
 
 // Database
-const sequelize = new Sequelize('database', 'user', 'password', {
-    host: 'localhost',
-    dialect:  'sqlite',
-    storage: 'database.db',
-});
+const sequelize = new Sequelize(database);
 
 this.name = 'settings';
 this.description = 'Allows you to see the current EveryBot settings and change them up, if you want of course.';

@@ -3,6 +3,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 this.name = 'play';
 this.description = 'Let\'s you play games with friends';
 this.cmdChannel = true;
+this.autocomplete = ['Betrayal', 'Chess', 'Fishing', 'Poker'];
 
 module.exports = {
     name: this.name,
@@ -13,16 +14,11 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName(this.name)
         .setDescription(this.description)
-        /*.addStringOption(option =>
+        .addStringOption(option =>
             option.setName('game')
                 .setDescription('The game you want to play')
                 .setRequired(true)
-                .addChoices(
-                    { name: 'Betrayal', value: 'betrayal' },
-                    { name: 'Chess', value: 'chess' },
-                    { name: 'Fishing', value: 'fishing' },
-                    { name: 'Poker', value: 'poker' },
-                ))*/,
+                .setAutocomplete(true)),
     async execute(interaction){
         const game = interaction.options.getString('game');
 

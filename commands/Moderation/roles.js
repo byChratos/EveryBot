@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { PermissionsBitField, EmbedBuilder, Message, DiscordAPIError } = require('discord.js');
 const { Sequelize, QueryTypes } = require('sequelize');
-const { database } = require('./config.json');
+const { database } = require('../../config.json');
 
 const sequelize = new Sequelize(database);
 

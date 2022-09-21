@@ -2,13 +2,10 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { Sequelize, QueryTypes } = require('sequelize');
 const Canvas = require('canvas');
 const { AttachmentBuilder, MessageActionRow, MessageButton, ApplicationCommandManager, ButtonStyle } = require('discord.js');
+const { database } = require('../../config.json');
 
 // Database
-const sequelize = new Sequelize('database', 'user', 'password', {
-    host: 'localhost',
-    dialect:  'sqlite',
-    storage: 'database.db',
-});
+const sequelize = new Sequelize(database);
 
 this.name = 'profile';
 this.description = 'WIP';
